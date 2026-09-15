@@ -122,6 +122,11 @@ p{margin:0 0 1.2rem}
 .year-tabs button{border:1.5px solid var(--deep);background:#fff;color:var(--deep);border-radius:99px;padding:.6rem 1.4rem;font-weight:600;font-size:1rem;cursor:pointer}
 .year-tabs button.on{background:var(--deep);color:#fff}
 
+.gallery{display:grid;gap:1rem;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.gimg{position:relative;border-radius:var(--r);overflow:hidden;aspect-ratio:4/3;background:#fff;border:1px solid var(--rule)}
+.gimg img{width:100%;height:100%;object-fit:cover}
+.gadd{min-height:0;aspect-ratio:4/3}
+
 /* ===== צוות ===== */
 .team{display:grid;gap:1.2rem;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
 .member{background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:1.4rem 1.2rem;text-align:center}
@@ -233,6 +238,7 @@ body.editing .del{display:inline-block}
       <div>
         <h4>ניווט</h4>
         <a href="#" data-page="about">על המרכז</a>
+        <a href="#" data-page="activity">פעילות המרכז</a>
         <a href="#" data-page="groups">קבוצות החדשנות</a>
         <a href="#" data-page="projects">פרויקטים מיוחדים</a>
         <a href="#" data-page="impact">יישום והשפעה</a>
@@ -301,6 +307,8 @@ const DEFAULTS = {
     students_p1: "לסטודנטים תפקיד מרכזי בקבוצות החדשנות של המרכז. במסגרת פעילותם, הסטודנטים עובדים בשיתוף פעולה עם אנשי סגל, אנשי מקצוע וקהילות מושפעות, וצוברים ניסיון מעשי בפיתוח של מודלים והתערבויות חדשניות. התהליך, המתפרס לאורך שנה אקדמית, כולל זיהוי אתגרים, פיתוח פתרונות יצירתיים, והתאמת מודלים והתערבויות לקהלי היעד שזוהו.",
     students_p2: "בנוסף, לסטודנטים תפקיד חשוב גם ביצירת קבוצות החדשנות. במהלך השנה יתקיימו מפגשי חשיבה בקמפוסים השונים, בהם יציפו הסטודנטים צרכים ואתגרים כבסיס ליצירת קבוצות החדשנות של השנה הבאה.",
     students_p3: "זוהי הזדמנות ייחודית להשתתף במחקר מתקדם, לרכוש ניסיון בין־תחומי, וליצור השפעה חברתית משמעותית.",
+    activity_intro: "עבודת המרכז מאורגנת סביב קבוצות חדשנות — קבוצות רב־תחומיות הפועלות כל השנה כחממות לחדשנות חברתית. כל קבוצה כוללת סטודנטים, סגל, אנשי מקצוע ומומחים בעלי ניסיון — ילדים ומבוגרים המתמודדים באופן אישי עם הסוגיות הנדונות בחממות הלמידה.",
+    activity27_empty: "תוכן שנת הפעילות תשפ\"ז יעודכן בהמשך.",
     groups_intro: "קבוצות החדשנות הן לב פעילות המרכז: צוותים רב־תחומיים של חוקרים, אנשי מקצוע, סטודנטים ונציגי קהילה, שפועלים לאורך שנה אקדמית שלמה סביב אתגר אחד — ומפתחים לו מענה חדש.",
     proj1_p: "המיזם עסק בחייהם של ילדי המועצה האזורית אשכול לפני ואחרי השבעה באוקטובר. תלמידי כיתות י'–י\"א חקרו סוגיות כמו תחושת ביטחון, מוטיבציה לגיוס והחיים במועצה בימי מלחמה — דרך הפקת סרטים קצרים, בהם הם המראיינים, הצלמים והעורכים.",
     proj2_p: "תוכנית פעולה מקיפה לשיפור השירותים החברתיים בצפון ובדרום: מיפוי צרכים של משפחות באזורי הגבול, זיהוי פערים במענים הקיימים, ופיתוח מודלים מקומיים מתוך הקשבה אמיתית לקול התושבים.",
@@ -320,9 +328,27 @@ const DEFAULTS = {
     proj2_img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1000&q=80"
   },
   activities: [
-    {title:"ילדים מתעדים ילדים", tag:"פרויקט מיוחד", desc:"תלמידי י'–י\"א ממועצה אזורית אשכול מתעדים בסרטים קצרים את החיים לפני ואחרי ה־7 באוקטובר.", img:"https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80", link:"projects"},
+    {title:"ילדים מתעדים ילדים", tag:"פרויקט מיוחד", desc:"תלמידי י'–י\"א ממועצה אזורית אשכול מתעדים בסרטים קצרים את החיים לפני ואחרי ה־7 באוקטובר.", img:"https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80", link:"activity"},
     {title:"מישהו שומע אותי", tag:"פרפורמנס וקול", desc:"אירועי קול, סיפור והקשבה בהובלת ד\"ר גילי המר — עיבוד טראומה וחוסן דרך פרפורמנס.", img:"https://images.unsplash.com/photo-1511379938547-c1f69b13d835?w=800&q=80", link:"impact"},
     {title:"פיילוט אופקים", tag:"יישום בשטח", desc:"מיפוי שירותי בריאות הנפש לבני נוער באופקים ופיתוח כלי הכוונה מבוסס בינה מלאכותית.", img:"https://images.unsplash.com/photo-1517457373614-b7152f800fd1?w=800&q=80", link:"impact"}
+  ],
+  events: {
+    "27": [],
+    "26": [
+      {title:"אירוע פתיחת פעילות המרכז תשפ\"ו", date:"פתיחת השנה", desc:"מפגש הפתיחה של שנת הפעילות, בהשתתפות מובילי קבוצות החדשנות, הסטודנטים, השותפים והצוות.", img:"https://static.wixstatic.com/media/61bc93_4c7ca45da5bd4f879260b2324d8c7030~mv2.jpg/v1/fill/w_1200,h_458,al_c,q_85/61bc93_4c7ca45da5bd4f879260b2324d8c7030~mv2.jpg", link:""},
+      {title:"אירוע סיום \"ילדים מצלמים ילדים\" במעמד רעיית הנשיא", date:"תשפ\"ו", desc:"אירוע חגיגי לציון סיום הפרויקט \"ילדים מצלמים ילדים\" לשנת תשפ\"ו, במעמד רעיית נשיא המדינה, הגברת מיכל הרצוג. סרטון מסכם מהאירוע.", img:"https://static.wixstatic.com/media/61bc93_06bc03ab43344d5086c7296f971c5dea~mv2.jpg/v1/fill/w_900,h_560,al_c,q_85/61bc93_06bc03ab43344d5086c7296f971c5dea~mv2.jpg", link:"https://www.youtube.com/playlist?list=PLs_biRme-0erVXjcbEmArEY8P16xl6zDW"},
+      {title:"יום הכשרה בגן הבוטני בירושלים", date:"תשפ\"ו", desc:"יום הכשרה במסגרת הקורס האקדמי \"קשרים בטבע: רווחה וחוסן מבוססי טבע לילדים\". לחצו לצפייה בסרטון מהאירוע.", img:"https://static.wixstatic.com/media/61bc93_a48ca1861ac74208bcba42f083715bd2~mv2.png/v1/fill/w_900,h_720,al_c,q_85/61bc93_a48ca1861ac74208bcba42f083715bd2~mv2.png", link:"https://www.facebook.com/share/r/1KP4ft6ARq/"},
+      {title:"מפגש למידה: שכול מקי\"ף", date:"9 ביוני · 20:00 · בזום", desc:"שכול מקי\"ף (משפחה מורחבת, קהילה, ישוב ופרטים בחברה) כולל את האנשים במעגלי השכול מעבר למעגל הראשון. מפגש למידה לחשיבה משותפת על פיתוח התחום, ברוח מתודת מיזוג הידע — בהשתתפות אנשים מכלל מעגלי השכול, אנשי מקצוע, מדיניות ואקדמיה.", img:"https://static.wixstatic.com/media/61bc93_9cf74582f067424c931340274d1eb378~mv2.png/v1/fill/w_900,h_900,al_c,q_85/61bc93_9cf74582f067424c931340274d1eb378~mv2.png", link:""},
+      {title:"קול קורא — המרכז לחדשנות", date:"תשפ\"ו", desc:"קול קורא להצטרפות לקבוצות החדשנות של המרכז.", img:"https://static.wixstatic.com/media/61bc93_ea7f3a066fa0470bbc5ea29037ce73d7~mv2.png/v1/fill/w_900,h_900,al_c,q_85/61bc93_ea7f3a066fa0470bbc5ea29037ce73d7~mv2.png", link:"contact"},
+      {title:"מפגש חשיבה מס' 1", date:"תשפ\"ו", desc:"מפגש חשיבה של קבוצות החדשנות והסטודנטים.", img:"https://static.wixstatic.com/media/61bc93_82289746c30340028682a00c98e24f0f~mv2.png/v1/fill/w_900,h_900,al_c,q_85/61bc93_82289746c30340028682a00c98e24f0f~mv2.png", link:""},
+      {title:"מפגש חשיבה מס' 2", date:"תשפ\"ו", desc:"מפגש חשיבה שני — הצפת צרכים ואתגרים כבסיס לקבוצות השנה הבאה.", img:"https://static.wixstatic.com/media/61bc93_f2ac2660f6a94ccdb9c5e62fe12c127d~mv2.png/v1/fill/w_900,h_900,al_c,q_85/61bc93_f2ac2660f6a94ccdb9c5e62fe12c127d~mv2.png", link:""}
+    ]
+  },
+  gallery26: [
+    "https://static.wixstatic.com/media/61bc93_4c7ca45da5bd4f879260b2324d8c7030~mv2.jpg/v1/fill/w_1200,h_458,al_c,q_85/61bc93_4c7ca45da5bd4f879260b2324d8c7030~mv2.jpg",
+    "https://static.wixstatic.com/media/61bc93_9df25155d94443b784b3198ad492523e~mv2.jpg/v1/fill/w_900,h_1200,al_c,q_85/61bc93_9df25155d94443b784b3198ad492523e~mv2.jpg",
+    "https://static.wixstatic.com/media/61bc93_671b34b09c96413e83f5174f47f2fec6~mv2.jpg/v1/fill/w_1000,h_750,al_c,q_85/61bc93_671b34b09c96413e83f5174f47f2fec6~mv2.jpg",
+    "https://static.wixstatic.com/media/61bc93_d339a27c6a3e4bffba742697f7003ce7~mv2.jpg/v1/fill/w_900,h_650,al_c,q_85/61bc93_d339a27c6a3e4bffba742697f7003ce7~mv2.jpg"
   ],
   groups26: [
     {t:"התמודדות עם הטראומה החדשה בקהילה הערבית", l:"ד\"ר חנאן אבוג'אבל", d:"פיתוח מענים מותאמי תרבות לקהילה הערבית בישראל בהתמודדות עם השלכות המלחמה.", img:"https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=700&q=80"},
@@ -364,7 +390,7 @@ const DEFAULTS = {
 /* ===================== מצב ===================== */
 const STORE_KEY = 'ofek_content_v11';
 let DATA = JSON.parse(JSON.stringify(DEFAULTS));
-try { const s = localStorage.getItem(STORE_KEY); if (s) { const o = JSON.parse(s); DATA.text = {...DATA.text, ...(o.text||{})}; DATA.images = {...DATA.images, ...(o.images||{})}; if (o.activities) DATA.activities = o.activities; if (o.teamImg) DATA.teamImg = o.teamImg; if (o.groupImg) DATA.groupImg = o.groupImg; } } catch(e) {}
+try { const s = localStorage.getItem(STORE_KEY); if (s) { const o = JSON.parse(s); DATA.text = {...DATA.text, ...(o.text||{})}; DATA.images = {...DATA.images, ...(o.images||{})}; if (o.activities) DATA.activities = o.activities; if (o.teamImg) DATA.teamImg = o.teamImg; if (o.groupImg) DATA.groupImg = o.groupImg; if (o.events) DATA.events = o.events; if (o.gallery26) DATA.gallery26 = o.gallery26; } } catch(e) {}
 DATA.teamImg = DATA.teamImg || {};
 DATA.groupImg = DATA.groupImg || {};
 
@@ -372,6 +398,7 @@ let loggedIn = false; try { loggedIn = sessionStorage.getItem('ofek_admin') === 
 let editing = false;
 let page = 'home';
 let groupsYear = '26';
+let actYear = '27';
 
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const T = k => `<span data-key="${k}">${esc(DATA.text[k])}</span>`;
@@ -379,7 +406,7 @@ const IMG = (k, alt, cls='') => `<img src="${esc(DATA.images[k])}" alt="${esc(al
 const teamSrc = m => DATA.teamImg[m.k] || ASSETS.team[m.k] || '';
 const groupSrc = (yr,i,g) => DATA.groupImg[yr+'_'+i] || g.img;
 
-function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify({text:DATA.text, images:DATA.images, activities:DATA.activities, teamImg:DATA.teamImg, groupImg:DATA.groupImg})); toast('נשמר ✓'); }catch(e){ toast('שגיאה בשמירה'); } }
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify({text:DATA.text, images:DATA.images, activities:DATA.activities, teamImg:DATA.teamImg, groupImg:DATA.groupImg, events:DATA.events, gallery26:DATA.gallery26})); toast('נשמר ✓'); }catch(e){ toast('שגיאה בשמירה'); } }
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600); }
 
 /* ===================== עמודים ===================== */
@@ -414,6 +441,7 @@ home: () => `
       </article>`).join('')}
       <div class="add-act" id="addAct">＋ הוספת פעילות</div>
     </div>
+    <div style="margin-top:2rem"><a class="btn line" href="#" data-page="activity">לכל פעילות המרכז ←</a></div>
   </div>
 </section>
 
@@ -483,6 +511,27 @@ ${pagehead('על המרכז','אֹופֶק — חזון, פילוסופיה וכ
   <a class="btn dark" href="#" data-page="contact">ליצירת קשר</a>
 </div></section>
 `,
+
+activity: () => {
+  const yr=actYear; const list=DATA.events[yr]||[];
+  const card=(a,i)=>`<article class="act">
+    <button class="del" data-del-ev="${i}">מחיקה</button>
+    <div class="img"><img src="${esc(a.img)}" alt="${esc(a.title)}" data-ev="${i}" loading="lazy"></div>
+    <div class="body">${a.date?`<span class="tag">${esc(a.date)}</span>`:''}<h3 data-ev="${i}">${esc(a.title)}</h3><p data-ev="${i}">${esc(a.desc)}</p>
+    ${a.link?`<a class="more" href="${/^https?:/.test(a.link)?esc(a.link):'#'}" ${/^https?:/.test(a.link)?'target="_blank" rel="noopener"':`data-page="${esc(a.link)}"`}>${/facebook|youtu/.test(a.link)?'▶ לצפייה':'לפרטים ←'}</a>`:''}</div></article>`;
+  return `
+${pagehead('פעילות המרכז','אירועים, מפגשים והכשרות לאורך שנות הפעילות')}
+<section class="sect"><div class="wrap">
+  <div class="prose" style="margin-bottom:2rem"><p>${T('activity_intro')}</p></div>
+  <div class="year-tabs"><button class="${yr==='27'?'on':''}" data-actyear="27">שנת פעילות תשפ"ז</button><button class="${yr==='26'?'on':''}" data-actyear="26">שנת פעילות תשפ"ו</button></div>
+  ${list.length? `<div class="acts-grid">${list.map(card).join('')}<div class="add-act" id="addEv">＋ הוספת אירוע</div></div>`
+   : `<div class="partner" style="text-align:center;padding:3rem"><h3>${T('activity27_empty')}</h3></div><div class="acts-grid" style="margin-top:1.4rem"><div class="add-act" id="addEv">＋ הוספת אירוע</div></div>`}
+</div></section>
+${yr==='26'?`<section class="sect tint"><div class="wrap">
+  <div class="hdr"><div class="tick"></div><h2>תמונות מאירוע פתיחת פעילות המרכז תשפ"ו</h2></div>
+  <div class="gallery">${DATA.gallery26.map((g,i)=>`<div class="gimg"><button class="del" data-del-g="${i}">מחיקה</button><img src="${esc(g)}" alt="" data-g="${i}" loading="lazy"></div>`).join('')}<div class="add-act gadd" id="addG">＋ הוספת תמונה</div></div>
+</div></section>`:''}`;
+},
 
 groups: () => {
   const yr = groupsYear; const list = yr==='26' ? DATA.groups26 : DATA.groups25;
@@ -557,7 +606,7 @@ ${pagehead('צרו קשר','נשמח לשמוע מכם')}
 };
 
 /* ===================== ניווט ורינדור ===================== */
-const ROUTES=[['home','בית'],['about','על המרכז'],['groups','קבוצות החדשנות'],['projects','פרויקטים'],['impact','יישום'],['team','צוות'],['contact','צרו קשר']];
+const ROUTES=[['home','בית'],['about','על המרכז'],['activity','פעילות המרכז'],['groups','קבוצות החדשנות'],['projects','פרויקטים'],['impact','יישום'],['team','צוות'],['contact','צרו קשר']];
 function buildNav(){ const h=ROUTES.map(r=>`<a href="#" data-page="${r[0]}">${r[1]}</a>`).join(''); document.getElementById('nav').innerHTML=h; document.getElementById('dnav').innerHTML=h; }
 function render(){
   document.getElementById('main').innerHTML = PAGES[page]();
@@ -617,15 +666,44 @@ function openActivity(i){
   document.getElementById('pc').onclick=closePanel;
 }
 
+
+function openEvent(yr,i){
+  const a = i==null ? {title:'',date:'',desc:'',img:'',link:''} : DATA.events[yr][i];
+  panel.innerHTML=`<h3>${i==null?'אירוע חדש':'עריכת אירוע'}</h3>
+  <label>כותרת</label><input id="at" value="${esc(a.title)}">
+  <label>תאריך / תגית</label><input id="ag" value="${esc(a.date)}">
+  <label>תיאור</label><textarea id="ad">${esc(a.desc)}</textarea>
+  <label>קישור (יוטיוב / פייסבוק / עמוד באתר)</label><input id="al" value="${esc(a.link)}">
+  <label>תמונה — העלאה</label><input type="file" id="af" accept="image/*">
+  <label>או קישור לתמונה</label><input id="ai" value="${esc(a.img)}">
+  <img class="prev" id="ap" src="${esc(a.img)}">
+  <div class="row"><button class="save" id="ps">שמירה</button><button class="cancel" id="pc">ביטול</button></div>`;
+  panel.classList.add('open');
+  let img=a.img;
+  document.getElementById('ai').oninput=e=>{ img=e.target.value; document.getElementById('ap').src=img; };
+  document.getElementById('af').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const im=new Image(); const rd=new FileReader();
+    rd.onload=()=>{ im.onload=()=>{ const c=document.createElement('canvas'); const s=Math.min(1,1200/Math.max(im.width,im.height)); c.width=im.width*s; c.height=im.height*s; c.getContext('2d').drawImage(im,0,0,c.width,c.height); img=c.toDataURL('image/jpeg',.82); document.getElementById('ap').src=img; }; im.src=rd.result; }; rd.readAsDataURL(f); };
+  document.getElementById('ps').onclick=()=>{ const o={title:document.getElementById('at').value,date:document.getElementById('ag').value,desc:document.getElementById('ad').value,link:document.getElementById('al').value.trim(),img};
+    DATA.events[yr]=DATA.events[yr]||[]; if(i==null) DATA.events[yr].push(o); else DATA.events[yr][i]=o; save(); closePanel(); render(); };
+  document.getElementById('pc').onclick=closePanel;
+}
+
 /* ===================== אירועים (האצלה) ===================== */
 document.addEventListener('click', e=>{
   const nav=e.target.closest('[data-page]'); if(nav){ e.preventDefault(); go(nav.dataset.page); return; }
   const yr=e.target.closest('[data-year]'); if(yr){ groupsYear=yr.dataset.year; render(); return; }
+  const ay=e.target.closest('[data-actyear]'); if(ay){ actYear=ay.dataset.actyear; render(); return; }
   if(e.target.id==='sendMail'){ const n=document.getElementById('cn').value,em=document.getElementById('ce').value,m=document.getElementById('cm').value;
     location.href='mailto:SWINNOV@mail.huji.ac.il?subject='+encodeURIComponent('פנייה מאתר אופק — '+n)+'&body='+encodeURIComponent(m+'\n\n'+n+'\n'+em); return; }
   if(!(editing&&loggedIn)) return;
   const del=e.target.closest('[data-del-act]'); if(del){ if(confirm('למחוק את הפעילות?')){ DATA.activities.splice(+del.dataset.delAct,1); save(); render(); } return; }
   if(e.target.closest('#addAct')){ openActivity(null); return; }
+  if(e.target.closest('#addEv')){ openEvent(actYear,null); return; }
+  const dev=e.target.closest('[data-del-ev]'); if(dev){ if(confirm('למחוק את האירוע?')){ DATA.events[actYear].splice(+dev.dataset.delEv,1); save(); render(); } return; }
+  const ev=e.target.closest('[data-ev]'); if(ev){ openEvent(actYear,+ev.dataset.ev); return; }
+  if(e.target.closest('#addG')){ openImage('', v=>DATA.gallery26.push(v)); return; }
+  const dg=e.target.closest('[data-del-g]'); if(dg){ if(confirm('למחוק את התמונה?')){ DATA.gallery26.splice(+dg.dataset.delG,1); save(); render(); } return; }
+  const gg=e.target.closest('[data-g]'); if(gg){ const k=+gg.dataset.g; openImage(gg.src, v=>DATA.gallery26[k]=v); return; }
   const ai=e.target.closest('[data-act-img]'); if(ai){ openActivity(+ai.dataset.actImg); return; }
   const ac=e.target.closest('[data-act]'); if(ac){ openActivity(+ac.dataset.act); return; }
   const ti=e.target.closest('[data-team-img]'); if(ti){ const k=ti.dataset.teamImg; openImage(ti.src, v=>DATA.teamImg[k]=v); return; }
@@ -651,7 +729,7 @@ document.getElementById('editToggle').onclick=()=>{ editing=!editing; closePanel
 document.getElementById('logoutBtn').onclick=()=>{ loggedIn=false; editing=false; try{sessionStorage.removeItem('ofek_admin')}catch(e){} closePanel(); render(); };
 document.getElementById('exportBtn').onclick=()=>{
   /* מייצר קובץ HTML חדש עם השינויים מוטמעים בו — להעלאה לשרת */
-  const payload={text:DATA.text,images:DATA.images,activities:DATA.activities,teamImg:DATA.teamImg,groupImg:DATA.groupImg};
+  const payload={text:DATA.text,images:DATA.images,activities:DATA.activities,teamImg:DATA.teamImg,groupImg:DATA.groupImg,events:DATA.events,gallery26:DATA.gallery26};
   let html=document.documentElement.outerHTML;
   html=html.replace(/<main id="main">[\s\S]*?<\/main>/,'<main id="main"></main>');
   html=html.replace(/const DATA = JSON\.parse\(JSON\.stringify\(DEFAULTS\)\);/, 'const DATA = JSON.parse(JSON.stringify(DEFAULTS)); Object.assign(DATA, '+JSON.stringify(payload)+');');
