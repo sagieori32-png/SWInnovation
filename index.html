@@ -154,6 +154,10 @@ p{margin:0 0 1.2rem}
 /* ===== ראש עמוד ===== */
 .upc{background:var(--soft);border-top:4px solid var(--honey);padding:clamp(2rem,4vw,3rem) 0}
 .upc .hdr{margin-bottom:1.2rem}
+.upc-empty{padding:1.4rem 0}
+.upc-empty .hdr{margin:0}
+.upc-empty h2{font-size:1.3rem}
+.upc-empty p{margin:.2rem 0 0;color:var(--muted)}
 .upc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem}
 .upc-card{position:relative;background:#fff;border-radius:16px;padding:1.4rem 1.5rem 1.4rem 1.5rem;box-shadow:0 8px 24px rgba(18,50,75,.08);display:flex;gap:1.2rem;align-items:flex-start}
 .upc-date{flex:0 0 auto;width:72px;text-align:center;background:var(--deep);color:#fff;border-radius:12px;padding:.6rem .3rem;line-height:1.05}
@@ -444,13 +448,13 @@ function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.
 
 /* ===================== אירועים קרובים ===================== */
 const DAY=86400000;
-function upcStatus(ev){ const d=new Date(ev.date+'T00:00:00'); if(isNaN(d)) return 'bad'; const today=new Date(); today.setHours(0,0,0,0); const diff=Math.round((d-today)/DAY); if(diff<0) return 'past'; if(diff>14) return 'future'; return 'live'; }
+function upcStatus(ev){ const d=new Date(ev.date+'T00:00:00'); if(isNaN(d)) return 'bad'; const today=new Date(); today.setHours(0,0,0,0); const diff=Math.round((d-today)/DAY); if(diff<0) return 'past'; return 'live'; }
 const HEB_MONTHS=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
 function upcomingHTML(){
   const edit=editing&&loggedIn;
   const all=(DATA.upcoming||[]).map((ev,i)=>({...ev,i,st:upcStatus(ev)})).sort((a,b)=>(a.date||'')<(b.date||'')?-1:1);
   const list=edit?all:all.filter(e=>e.st==='live');
-  if(!list.length&&!edit) return '';
+  if(!list.length&&!edit) return `<section class="upc upc-empty"><div class="wrap"><div class="hdr"><div class="tick"></div><h2>אירועים קרובים</h2><p>אין אירועים קרובים עד לעדכון הבא.</p></div></div></section>`;
   const card=e=>{ const d=new Date(e.date+'T00:00:00'); const day=isNaN(d)?'?':d.getDate(); const mon=isNaN(d)?'':HEB_MONTHS[d.getMonth()];
     return `<article class="upc-card ${e.st==='past'?'past':''}" data-upc="${e.i}">
       ${edit?`<button class="del" data-del-upc="${e.i}">מחיקה</button>`:''}
@@ -459,12 +463,11 @@ function upcomingHTML(){
         <div class="meta">${e.time?`<span>🕒 ${esc(e.time)}</span>`:''}${e.place?`<span>📍 ${esc(e.place)}</span>`:''}</div>
         ${e.desc?`<p>${esc(e.desc)}</p>`:''}
         ${e.link?`<p><a href="${esc(e.link)}" target="_blank" rel="noopener">לפרטים והרשמה ←</a></p>`:''}
-        ${edit&&e.st==='future'?`<span class="hidden-note">מוסתר — יופיע באתר שבועיים לפני האירוע</span>`:''}
         ${edit&&e.st==='past'?`<span class="hidden-note">האירוע עבר — לא מוצג באתר</span>`:''}
         ${edit&&e.st==='bad'?`<span class="hidden-note">תאריך לא תקין</span>`:''}
       </div></article>`; };
   return `<section class="upc"><div class="wrap">
-    <div class="hdr"><div class="tick"></div><h2>אירועים קרובים</h2>${edit?'<p>אירוע מוצג בעמוד הבית החל משבועיים לפני מועדו ויורד אוטומטית לאחר שעבר.</p>':''}</div>
+    <div class="hdr"><div class="tick"></div><h2>אירועים קרובים</h2>${edit?'<p>כל אירוע מוזן מוצג בעמוד הבית ויורד אוטומטית לאחר שמועדו עבר.</p>':''}</div>
     <div class="upc-grid">${list.map(card).join('')}${edit?'<div class="add-act" id="addUpc">＋ הוספת אירוע קרוב</div>':''}</div>
   </div></section>`;
 }
