@@ -172,11 +172,11 @@ p{margin:0 0 1.2rem}
 .upc-card .edit-hint{display:none}
 body.editing .upc-card{cursor:pointer;outline:2px dashed var(--honey);outline-offset:3px}
 .impl{display:flex;flex-direction:column;gap:2.5rem}
-.impl-item{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:2rem;align-items:start;background:#fff;border:1px solid var(--rule);border-radius:var(--r);overflow:hidden}
-.impl-item:nth-child(even){grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
-.impl-item:nth-child(even) .impl-img{order:2}
-.impl-img{aspect-ratio:4/3;background:var(--soft);height:100%}
-.impl-img img{width:100%;height:100%;object-fit:cover;display:block}
+.impl-item{position:relative;display:flex;align-items:stretch;gap:0;background:#fff;border:1px solid var(--rule);border-radius:var(--r);overflow:hidden}
+.impl-item:nth-child(even){flex-direction:row-reverse}
+.impl-img{flex:0 0 40%;max-width:40%;min-height:280px;background:var(--soft);position:relative;overflow:hidden}
+.impl-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.impl-body{flex:1 1 auto;min-width:0}
 .impl-body{padding:1.6rem 1.8rem 1.6rem 1.2rem}
 .impl-item:nth-child(even) .impl-body{padding:1.6rem 1.2rem 1.6rem 1.8rem}
 .impl-body h3{margin:0 0 .3rem;font-size:1.3rem;color:var(--ink);text-wrap:balance}
@@ -187,12 +187,14 @@ body.editing .upc-card{cursor:pointer;outline:2px dashed var(--honey);outline-of
 .impl-links a:hover{background:var(--deep);color:#fff}
 body.editing .impl-body{cursor:pointer;outline:2px dashed var(--honey);outline-offset:-6px}
 body.editing .impl-img{cursor:pointer}
-@media(max-width:760px){.impl-item,.impl-item:nth-child(even){grid-template-columns:1fr}.impl-item:nth-child(even) .impl-img{order:0}.impl-img{aspect-ratio:16/9;height:auto}.impl-body,.impl-item:nth-child(even) .impl-body{padding:1.2rem 1.3rem}}
+@media(max-width:760px){.impl-item,.impl-item:nth-child(even){flex-direction:column}.impl-img{flex:none;max-width:none;width:100%;min-height:0;aspect-ratio:16/9}.impl-body,.impl-item:nth-child(even) .impl-body{padding:1.2rem 1.3rem}}
 .group{position:relative}
 .member{position:relative}
 body.editing .group .body{cursor:pointer;outline:2px dashed var(--honey);outline-offset:-6px}
 body.editing .member b{cursor:pointer;outline:2px dashed var(--honey);outline-offset:4px;display:inline-block}
 /* ===== מוטיב ותנועה ===== */
+.hero-edit{display:none;position:absolute;top:1rem;inset-inline-end:1rem;z-index:5;background:var(--honey);color:#2C1E05;border:0;border-radius:99px;padding:.6rem 1.2rem;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+body.editing .hero-edit{display:inline-block}
 .hero .bg video,.hero-video{width:100%;height:100%;object-fit:cover;display:block}
 .hero .bg img.kb{animation:kenburns 22s ease-in-out infinite alternate;transform-origin:center}
 @keyframes kenburns{from{transform:scale(1)}to{transform:scale(1.08)}}
@@ -700,6 +702,7 @@ const PAGES = {
 home: () => `
 <section class="hero">
   <div class="bg">${heroMedia()}</div>
+  <button class="hero-edit" id="heroEdit">🎬 החלפת רקע ההירו (תמונה / GIF / וידאו)</button>
   <div class="scrim"></div>
   <div class="inner"><div class="wrap">
     <h1>${T('hero_h1')}</h1>
@@ -1030,6 +1033,7 @@ document.addEventListener('click', e=>{
     location.href='mailto:'+TV('contact_email')+'?subject='+encodeURIComponent('פנייה מאתר אופק — '+n)+'&body='+encodeURIComponent(m+'\n\n'+n+'\n'+em); return; }
   if(!(editing&&loggedIn)) return;
   const del=e.target.closest('[data-del-act]'); if(del){ if(confirm('למחוק את הפעילות?')){ DATA.activities.splice(+del.dataset.delAct,1); save(); render(); } return; }
+  if(e.target.closest('#heroEdit')){ openImage(DATA.images.hero||'', v=>DATA.images.hero=v); return; }
   if(e.target.closest('#addGroup')){ openGroup(groupsYear,null); return; }
   const dgr=e.target.closest('[data-del-group]'); if(dgr){ if(confirm('למחוק את הקבוצה?')){ const k=+dgr.dataset.delGroup; DATA.groups[groupsYear].splice(k,1); const ni={}; for(const key in DATA.groupImg){ const [y,idx]=key.split('_'); if(y!==groupsYear||+idx<k) ni[key]=DATA.groupImg[key]; else if(+idx>k) ni[y+'_'+(+idx-1)]=DATA.groupImg[key]; } DATA.groupImg=ni; save(); render(); } return; }
   const gb=e.target.closest('[data-group]'); if(gb&&!e.target.closest('[data-more]')){ openGroup(groupsYear,+gb.dataset.group); return; }
