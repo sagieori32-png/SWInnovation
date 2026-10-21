@@ -1,0 +1,14 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": ["firebase.json", "**/.*"],
+    "cleanUrls": true,
+    "headers": [
+      { "source": "/index.html", "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }] },
+      { "source": "/", "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }] },
+      { "source": "**/*.@(mp4|webm|jpg|jpeg|png|webp|gif)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }] }
+    ]
+  },
+  "firestore": { "rules": "firestore.rules" },
+  "storage": { "rules": "storage.rules" }
+}
