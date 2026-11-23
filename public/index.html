@@ -740,6 +740,15 @@ let DATA = JSON.parse(JSON.stringify(DEFAULTS));
 applyContent(BASE_CONTENT);
 try { const s = localStorage.getItem(STORE_KEY); if (s) applyContent(JSON.parse(s)); } catch(e) {}
 /* לוגו מונפש: נדרס פעם אחת על לוגו ישן ששמור בענן, ולא נוגע בלוגו שיועלה מכאן והלאה */
+const HERO_V = 20, HERO_FILE = 'hero-sunrise.mp4';
+function applyHeroVersion(){
+  if (+(DATA.images.hero_v || 0) < HERO_V) {
+    DATA.images.hero = HERO_FILE;
+    DATA.images.hero_poster = '';
+    DATA.images.hero_v = HERO_V;
+  }
+}
+applyHeroVersion();
 const LOGO_V = 2;
 function applyLogoVersion(){
   if (+(DATA.images.logo_v || 0) < LOGO_V) {
@@ -811,7 +820,7 @@ async function save(){
 }
 function applyContent(o){
   if(!o) return;
-  DATA.text = {...DATA.text, ...(o.text||{})}; DATA.text_en = {...(DATA.text_en||{}), ...(o.text_en||{})}; DATA.images = {...DATA.images, ...(o.images||{})}; if(o.images && o.images.hero!==undefined && o.images.hero_v===undefined) DATA.images.hero_v = 0; if(o.images && o.images.logo!==undefined && o.images.logo_v===undefined) DATA.images.logo_v = 0;
+  DATA.text = {...DATA.text, ...(o.text||{})}; DATA.text_en = {...(DATA.text_en||{}), ...(o.text_en||{})}; DATA.images = {...DATA.images, ...(o.images||{})}; if(o.images && o.images.hero!==undefined && o.images.hero_v===undefined) DATA.images.hero_v = 0; if(o.images && o.images.logo!==undefined && o.images.logo_v===undefined) DATA.images.logo_v = 0; if(o.images && o.images.hero!==undefined && o.images.hero_v===undefined) DATA.images.hero_v = 0;
   for (const k of ['activities','teamImg','groupImg','events','gallery26','upcoming','impl','groups','team','videos']) if (o[k]) DATA[k] = o[k];
 }
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600); }
@@ -1477,7 +1486,7 @@ function renderFooter(){
     <div class="fbottom">
       <span>${T('footer_copy','© אֹופֶק — האוניברסיטה העברית ומכון חרוב')}</span>
       <a href="#" data-page="accessibility">${T('footer_a11y','הצהרת נגישות')}</a>
-      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 42</span>
+      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 43</span>
     </div>
   </div>`;
 }
@@ -1688,7 +1697,7 @@ document.addEventListener('keydown',e=>{ if(e.ctrlKey&&e.shiftKey&&(e.key==='E'|
 /* ===================== הפעלה ===================== */
 render();
 if (FB) {
-  CONTENT_REF().get().then(s=>{ if(s.exists){ applyContent(s.data()); } applyLogoVersion(); cloudReady=true; cacheHero(); render(); })
+  CONTENT_REF().get().then(s=>{ if(s.exists){ applyContent(s.data()); } applyHeroVersion(); applyLogoVersion(); cloudReady=true; cacheHero(); render(); })
     .catch(e=>{ console.warn('טעינה מהענן נכשלה',e); cloudReady=true; render(); });
   FB.auth.onAuthStateChanged(u=>{ const was=loggedIn; loggedIn=!!u; if(!u){ editing=false; try{sessionStorage.removeItem('ofek_admin')}catch(e){} } if(was!==loggedIn) render(); });
 }
