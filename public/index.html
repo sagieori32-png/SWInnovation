@@ -335,6 +335,12 @@ body.editing .del{display:inline-block}
 .toast{position:fixed;bottom:90px;inset-inline-start:50%;transform:translateX(50%);background:#1b5e20;color:#fff;padding:.8rem 1.4rem;border-radius:99px;z-index:400;display:none;font-weight:600}
 .toast.show{display:block}
 
+.tpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:.5rem;margin:.2rem 0 .6rem}
+.tpick-opt{padding:0;border:2px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--soft);cursor:pointer;display:block}
+.tpick-opt.on{border-color:var(--honey);box-shadow:0 0 0 2px rgba(224,163,63,.3)}
+.tpick-opt img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.tpick-opt span{display:block;font-size:.72rem;padding:.2rem;color:var(--muted);text-align:center}
+
 /* ===================== סרטונים ===================== */
 .vfeat{padding-bottom:clamp(2rem,4vw,3rem)}
 .vstage{position:relative;aspect-ratio:16/9;max-width:1040px;margin-inline:auto;border-radius:var(--r);overflow:hidden;background:#0E2A42;
@@ -811,14 +817,15 @@ function applyContent(o){
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600); }
 
 /* ===================== סרטונים ===================== */
-const ytThumb = (id,big) => `https://i.ytimg.com/vi/${encodeURIComponent(id)}/${big?'maxresdefault':'hqdefault'}.jpg`;
+const ytAuto = (id,which) => `https://i.ytimg.com/vi/${encodeURIComponent(id)}/${which}.jpg`;
+const ytThumb = (v,big) => v.thumb || ytAuto(v.id, big?'maxresdefault':'hqdefault');
 const ytEmbed  = id => `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0&modestbranding=1&hl=${lang==='en'?'en':'he'}`;
 function ytFacade(v, i, big){
   const title = L('videos',v,'title');
   const label = (lang==='en'?'Play video':'נגן את הסרטון') + (title?(': '+title):'');
   return `<button class="yt" data-yt="${esc(v.id)}" aria-label="${esc(label)}">
-    <img src="${esc(ytThumb(v.id,big))}" alt="" data-fb="1" loading="lazy"
-      ${big?`onerror="this.onerror=null;this.src='${esc(ytThumb(v.id,false))}'"`:''}>
+    <img src="${esc(ytThumb(v,big))}" alt="" data-fb="1" loading="lazy"
+      ${(big&&!v.thumb)?`onerror="this.onerror=null;this.src='${esc(ytAuto(v.id,'hqdefault'))}'"`:''}>
     <span class="yt-play" aria-hidden="true"><svg viewBox="0 0 68 48" width="100%" height="100%"><path d="M66.5 7.7a8.6 8.6 0 0 0-6-6.1C55.2 0 34 0 34 0S12.8 0 7.5 1.6a8.6 8.6 0 0 0-6 6.1C0 13 0 24 0 24s0 11 1.5 16.3a8.6 8.6 0 0 0 6 6.1C12.8 48 34 48 34 48s21.2 0 26.5-1.6a8.6 8.6 0 0 0 6-6.1C68 35 68 24 68 24s0-11-1.5-16.3z" fill="#E0A33F"/><path d="M27 34V14l18 10z" fill="#12324B"/></svg></span>
   </button>`;
 }
@@ -858,15 +865,40 @@ function openVideo(i){
   <label>קישור או מזהה של YouTube</label><input id="vy" dir="ltr" placeholder="https://youtu.be/..." value="${esc(src.id)}">
   <label>כותרת</label><input id="vt" value="${esc(L('videos',src,'title'))}">
   <label>תיאור קצר</label><textarea id="vd">${esc(L('videos',src,'desc'))}</textarea>
+  <label>תמונה ממוזערת</label>
+  <p style="font-size:.85rem;color:var(--muted);margin:.1rem 0 .5rem">לחצו על אחת מהאפשרויות שיוטיוב מציע, או העלו תמונה משלכם.</p>
+  <div class="tpick" id="tpick"></div>
+  <label>העלאת תמונה מהמחשב</label><input type="file" id="vth" accept="image/*">
+  <label>או קישור לתמונה</label><input id="vtu" dir="ltr" value="${esc(src.thumb||'')}">
   ${isF?'':'<label><input type="checkbox" id="vf"> להפוך לסרטון המרכזי</label>'}
   <div class="row"><button class="save" id="ps">שמירה</button><button class="cancel" id="pc">ביטול</button></div>`;
   panel.classList.add('open'); document.getElementById('vt').focus();
+  let thumb = src.thumb || '';
+  const curId = () => { const r=document.getElementById('vy').value.trim(); const m=r.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{6,})/); return m?m[1]:r; };
+  function paintPicker(){
+    const id=curId(); const box=document.getElementById('tpick'); if(!box) return;
+    const opts=[['hqdefault','ברירת מחדל'],['hq1','פריים 1'],['hq2','פריים 2'],['hq3','פריים 3'],['maxresdefault','איכות גבוהה']];
+    box.innerHTML = id ? opts.map(([w,lbl])=>`<button type="button" class="tpick-opt${thumb===ytAuto(id,w)||(!thumb&&w==='hqdefault')?' on':''}" data-tp="${esc(ytAuto(id,w))}">
+      <img src="${esc(ytAuto(id,w))}" alt="" data-fb="1" onerror="this.closest('button').remove()"><span>${lbl}</span></button>`).join('')
+      + `<button type="button" class="tpick-opt${thumb&&!/i\.ytimg\.com/.test(thumb)?' on':''}" data-tp="" style="display:${thumb&&!/i\.ytimg\.com/.test(thumb)?'block':'none'}"><img src="${esc(thumb)}" alt="" data-fb="1"><span>משלכם</span></button>`
+      : '<p style="color:var(--muted);font-size:.9rem">הדביקו קישור לסרטון כדי לראות אפשרויות</p>';
+  }
+  paintPicker();
+  document.getElementById('vy').oninput=paintPicker;
+  document.getElementById('tpick').onclick=e=>{ const b=e.target.closest('[data-tp]'); if(!b) return;
+    thumb=b.dataset.tp; document.getElementById('vtu').value=thumb; paintPicker(); };
+  document.getElementById('vtu').oninput=e=>{ thumb=e.target.value.trim(); paintPicker(); };
+  document.getElementById('vth').onchange=e=>{ const f=e.target.files[0]; if(!f) return;
+    const im=new Image(); const rd=new FileReader();
+    rd.onload=()=>{ im.onload=()=>{ const c=document.createElement('canvas'); const s=Math.min(1,1280/im.width); c.width=im.width*s; c.height=im.height*s;
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height); thumb=c.toDataURL('image/jpeg',.85); document.getElementById('vtu').value=''; paintPicker(); }; im.src=rd.result; };
+    rd.readAsDataURL(f); };
   document.getElementById('ps').onclick=()=>{
     const raw=document.getElementById('vy').value.trim();
     const m=raw.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{6,})/);
     const id=m?m[1]:raw;
     if(!id){ toast('נדרש קישור לסרטון'); return; }
-    const o={id,title:document.getElementById('vt').value.trim(),desc:document.getElementById('vd').value.trim()};
+    const o={id,title:document.getElementById('vt').value.trim(),desc:document.getElementById('vd').value.trim(),thumb};
     DATA.videos=DATA.videos||{featured:null,list:[]}; DATA.videos.list=DATA.videos.list||[];
     let item;
     if(isF){ DATA.videos.featured=DATA.videos.featured||{}; item=setL(DATA.videos.featured,o,['title','desc']); }
@@ -1428,7 +1460,7 @@ function renderFooter(){
     <div class="fbottom">
       <span>${T('footer_copy','© אֹופֶק — האוניברסיטה העברית ומכון חרוב')}</span>
       <a href="#" data-page="accessibility">${T('footer_a11y','הצהרת נגישות')}</a>
-      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 39</span>
+      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 40</span>
     </div>
   </div>`;
 }
