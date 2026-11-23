@@ -343,10 +343,10 @@ body.editing .del{display:inline-block}
 
 /* ===================== סרטונים ===================== */
 .vfeat{padding-bottom:clamp(2rem,4vw,3rem)}
-.vstage{position:relative;aspect-ratio:16/9;max-width:1040px;margin-inline:auto;border-radius:var(--r);overflow:hidden;background:#0E2A42;
+.vstage{position:relative;aspect-ratio:16/9;max-width:780px;margin-inline:auto;border-radius:var(--r);overflow:hidden;background:#0E2A42;
   box-shadow:0 1px 2px rgba(18,50,75,.06),0 26px 60px -34px rgba(18,50,75,.9)}
 .vstage iframe,.vthumb iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
-.vstage-meta{margin-top:1.2rem;max-width:1040px;margin-inline:auto}
+.vstage-meta{margin-top:1.2rem;max-width:780px;margin-inline:auto}
 .vstage-meta h3{margin:0 0 .3rem;font-size:1.35rem}
 .vstage-meta p{margin:0;color:var(--muted)}
 button.yt{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;background:#0E2A42;cursor:pointer;display:block}
@@ -817,6 +817,13 @@ function applyContent(o){
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600); }
 
 /* ===================== סרטונים ===================== */
+const YT_FALLBACKS=['maxresdefault','sddefault','hqdefault','mqdefault','0'];
+function ytFallback(img){
+  const id=img.dataset.ytid; let i=+(img.dataset.step||0);
+  if(!id || i>=YT_FALLBACKS.length){ img.onerror=null; return; }
+  img.dataset.step=i+1;
+  img.src='https://i.ytimg.com/vi/'+encodeURIComponent(id)+'/'+YT_FALLBACKS[i]+'.jpg';
+}
 const ytAuto = (id,which) => `https://i.ytimg.com/vi/${encodeURIComponent(id)}/${which}.jpg`;
 const ytThumb = (v,big) => v.thumb || ytAuto(v.id, big?'maxresdefault':'hqdefault');
 const ytEmbed  = id => `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0&modestbranding=1&hl=${lang==='en'?'en':'he'}`;
@@ -825,7 +832,7 @@ function ytFacade(v, i, big){
   const label = (lang==='en'?'Play video':'נגן את הסרטון') + (title?(': '+title):'');
   return `<button class="yt" data-yt="${esc(v.id)}" aria-label="${esc(label)}">
     <img src="${esc(ytThumb(v,big))}" alt="" data-fb="1" loading="lazy"
-      ${(big&&!v.thumb)?`onerror="this.onerror=null;this.src='${esc(ytAuto(v.id,'hqdefault'))}'"`:''}>
+      ${v.thumb?'':`data-ytid="${esc(v.id)}" onerror="ytFallback(this)"`}>
     <span class="yt-play" aria-hidden="true"><svg viewBox="0 0 68 48" width="100%" height="100%"><path d="M66.5 7.7a8.6 8.6 0 0 0-6-6.1C55.2 0 34 0 34 0S12.8 0 7.5 1.6a8.6 8.6 0 0 0-6 6.1C0 13 0 24 0 24s0 11 1.5 16.3a8.6 8.6 0 0 0 6 6.1C12.8 48 34 48 34 48s21.2 0 26.5-1.6a8.6 8.6 0 0 0 6-6.1C68 35 68 24 68 24s0-11-1.5-16.3z" fill="#E0A33F"/><path d="M27 34V14l18 10z" fill="#12324B"/></svg></span>
   </button>`;
 }
@@ -1460,7 +1467,7 @@ function renderFooter(){
     <div class="fbottom">
       <span>${T('footer_copy','© אֹופֶק — האוניברסיטה העברית ומכון חרוב')}</span>
       <a href="#" data-page="accessibility">${T('footer_a11y','הצהרת נגישות')}</a>
-      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 40</span>
+      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 41</span>
     </div>
   </div>`;
 }
