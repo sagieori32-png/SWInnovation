@@ -360,10 +360,53 @@ button.yt:hover .yt-play{transform:translate(-50%,-50%) scale(1.09)}
 .varr{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--rule);background:#fff;color:var(--deep);
   font-size:1.5rem;line-height:1;cursor:pointer;transition:.2s}
 .varr:hover{border-color:var(--deep);background:var(--deep);color:#fff}
-.vrail{display:flex;gap:1.4rem;overflow-x:auto;scroll-snap-type:x mandatory;padding:.4rem .2rem 1.2rem;
-  scrollbar-width:thin}
-.vrail::-webkit-scrollbar{height:8px}
-.vrail::-webkit-scrollbar-thumb{background:rgba(31,79,122,.3);border-radius:99px}
+.vrail-wrap{position:relative}
+.vrail{display:flex;gap:1.4rem;overflow-x:auto;scroll-snap-type:x mandatory;padding:.4rem .2rem 1rem;
+  scrollbar-width:none;-ms-overflow-style:none;cursor:grab;
+  -webkit-mask-image:linear-gradient(to left,transparent 0,#000 48px,#000 calc(100% - 48px),transparent 100%);
+          mask-image:linear-gradient(to left,transparent 0,#000 48px,#000 calc(100% - 48px),transparent 100%)}
+.vrail.at-start{-webkit-mask-image:linear-gradient(to left,transparent 0,#000 48px,#000 100%);mask-image:linear-gradient(to left,transparent 0,#000 48px,#000 100%)}
+.vrail.at-end{-webkit-mask-image:linear-gradient(to left,#000 0,#000 calc(100% - 48px),transparent 100%);mask-image:linear-gradient(to left,#000 0,#000 calc(100% - 48px),transparent 100%)}
+.vrail.at-start.at-end{-webkit-mask-image:none;mask-image:none}
+.vrail.dragging{cursor:grabbing;scroll-snap-type:none}
+.vrail.dragging *{pointer-events:none}
+.vrail::-webkit-scrollbar{display:none}
+.varr[disabled]{opacity:.32;cursor:default;border-color:var(--rule);background:#fff;color:var(--muted)}
+.varr[disabled]:hover{background:#fff;color:var(--muted);border-color:var(--rule)}
+
+/* ---- נגן מוגדל ---- */
+.vbox{position:fixed;inset:0;z-index:500;background:rgba(9,26,42,.92);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;gap:.4rem;padding:clamp(1rem,4vw,3rem);
+  animation:vboxIn .25s ease}
+.vbox[hidden]{display:none}
+@keyframes vboxIn{from{opacity:0}to{opacity:1}}
+.vbox-inner{width:min(1180px,100%);max-height:100%;display:flex;flex-direction:column;gap:1rem;animation:vboxUp .3s cubic-bezier(.2,.8,.3,1)}
+@keyframes vboxUp{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+.vbox-stage{position:relative;aspect-ratio:16/9;width:100%;background:#000;border-radius:14px;overflow:hidden;
+  box-shadow:0 30px 80px -30px rgba(0,0,0,.9)}
+.vbox-stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vbox-cap{display:flex;align-items:flex-start;justify-content:space-between;gap:1.2rem;color:#fff}
+.vbox-cap h3{margin:0;font-size:1.2rem;color:#fff}
+.vbox-cap p{margin:.25rem 0 0;color:rgba(255,255,255,.78);font-size:1rem}
+.vbox-count{flex:0 0 auto;direction:ltr;unicode-bidi:isolate;font-family:var(--head);font-weight:600;color:rgba(255,255,255,.7);font-size:.95rem;
+  border:1px solid rgba(255,255,255,.25);border-radius:99px;padding:.2rem .8rem}
+.vbox-x{position:absolute;top:1rem;inset-inline-end:1rem;width:46px;height:46px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:1.2rem;cursor:pointer}
+.vbox-x:hover{background:rgba(255,255,255,.22)}
+.vbox-nav{flex:0 0 auto;width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.1);color:#fff;font-size:1.8rem;line-height:1;cursor:pointer}
+.vbox-nav:hover{background:rgba(255,255,255,.22)}
+.vprev::before{content:"\203A"}            /* RTL: הקודם יושב מימין ומצביע ימינה */
+.vnext::before{content:"\2039"}
+[dir=ltr] .vprev::before{content:"\2039"}
+[dir=ltr] .vnext::before{content:"\203A"}
+@media(max-width:760px){
+  .vbox{padding:.6rem;gap:0}
+  .vbox-nav{position:absolute;bottom:1.1rem;width:46px;height:46px}
+  .vbox-nav.vprev{inset-inline-start:1rem}
+  .vbox-nav.vnext{inset-inline-end:1rem}
+  .vbox-cap{flex-direction:column;gap:.4rem;padding-bottom:4rem}
+}
 .vcard{position:relative;flex:0 0 clamp(260px,31%,380px);scroll-snap-align:start;background:#fff;
   border:1px solid #ECE4D6;border-radius:var(--r);overflow:hidden;
   box-shadow:0 1px 2px rgba(18,50,75,.04),0 10px 24px -18px rgba(18,50,75,.5);
@@ -531,6 +574,15 @@ footer .fbottom{border-top:1px solid rgba(255,255,255,.14)}
   <button class="gray" id="logoutBtn">יציאה</button>
 </div>
 <div class="edit-hint">מצב עריכה פעיל.<br>לחצו על כל טקסט או תמונה עם מסגרת צהובה כדי לערוך. בעמוד הבית אפשר להוסיף פעילות.</div>
+<div class="vbox" id="vbox" role="dialog" aria-modal="true" aria-label="נגן וידאו" hidden>
+  <button class="vbox-x" id="vboxX" aria-label="סגירה">✕</button>
+  <button class="vbox-nav vprev" data-vnav="-1" aria-label="הסרטון הקודם"></button>
+  <div class="vbox-inner">
+    <div class="vbox-stage" id="vboxStage"></div>
+    <div class="vbox-cap" id="vboxCap"></div>
+  </div>
+  <button class="vbox-nav vnext" data-vnav="1" aria-label="הסרטון הבא"></button>
+</div>
 <div id="panel" role="dialog" aria-modal="true" aria-label="עריכת תוכן"></div>
 <div class="toast" id="toast" role="status" aria-live="polite">נשמר ✓</div>
 
@@ -840,6 +892,58 @@ function ytFacade(v, i, big){
     <span class="yt-play" aria-hidden="true"><svg viewBox="0 0 68 48" width="100%" height="100%"><path d="M66.5 7.7a8.6 8.6 0 0 0-6-6.1C55.2 0 34 0 34 0S12.8 0 7.5 1.6a8.6 8.6 0 0 0-6 6.1C0 13 0 24 0 24s0 11 1.5 16.3a8.6 8.6 0 0 0 6 6.1C12.8 48 34 48 34 48s21.2 0 26.5-1.6a8.6 8.6 0 0 0 6-6.1C68 35 68 24 68 24s0-11-1.5-16.3z" fill="#E0A33F"/><path d="M27 34V14l18 10z" fill="#12324B"/></svg></span>
   </button>`;
 }
+/* ---- נגן מוגדל ---- */
+let VB = {list:[], i:0, opener:null};
+function allVideos(){ const V=DATA.videos||{}; return (V.featured?[V.featured]:[]).concat(V.list||[]); }
+function vboxOpen(id, opener){
+  const list=allVideos(); const i=Math.max(0,list.findIndex(v=>v.id===id));
+  VB={list,i,opener:opener||null};
+  const box=document.getElementById('vbox');
+  box.hidden=false; document.body.style.overflow='hidden';
+  vboxPaint(); document.getElementById('vboxX').focus();
+}
+function vboxPaint(){
+  const v=VB.list[VB.i]; if(!v) return;
+  document.getElementById('vboxStage').innerHTML =
+    `<iframe src="${ytEmbed(v.id)}" title="${esc(L('videos',v,'title')||'YouTube')}" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+  const ttl=L('videos',v,'title'), dsc=L('videos',v,'desc');
+  document.getElementById('vboxCap').innerHTML =
+    `<div>${ttl?`<h3>${esc(ttl)}</h3>`:''}${dsc?`<p>${esc(dsc)}</p>`:''}</div>
+     <span class="vbox-count">${VB.i+1} / ${VB.list.length}</span>`;
+  const multi=VB.list.length>1;
+  document.querySelectorAll('.vbox-nav').forEach(b=>b.hidden=!multi);
+}
+function vboxStep(d){ if(VB.list.length<2) return; VB.i=(VB.i+d+VB.list.length)%VB.list.length; vboxPaint(); }
+function vboxClose(){
+  const box=document.getElementById('vbox'); if(box.hidden) return;
+  box.hidden=true; document.getElementById('vboxStage').innerHTML='';
+  document.body.style.overflow='';
+  if(VB.opener && document.contains(VB.opener)) VB.opener.focus();
+  VB.opener=null;
+}
+/* ---- מצב החצים ורמיזת גלילה ---- */
+function railSync(){
+  const r=document.getElementById('vrail'); if(!r) return;
+  const rtl=document.documentElement.dir==='rtl';
+  const max=Math.max(0, r.scrollWidth-r.clientWidth);
+  const pos=Math.abs(r.scrollLeft);
+  const TOL=8;                       /* גלילה ב-RTL מחזירה ערכי שבר */
+  const atStart=pos<=TOL, atEnd=pos>=max-TOL;
+  const prev=document.querySelector('[data-vscroll="-1"]'), next=document.querySelector('[data-vscroll="1"]');
+  if(prev) prev.disabled=atStart;
+  if(next) next.disabled=atEnd||max<=0;
+  r.classList.toggle('at-start',atStart); r.classList.toggle('at-end',atEnd||max<=0);
+}
+function railInit(){
+  const r=document.getElementById('vrail'); if(!r) return;
+  railSync(); r.onscroll=railSync;
+  let down=false,sx=0,sl=0,moved=0;
+  r.onpointerdown=e=>{ if(e.target.closest('button')&&moved===0){} down=true; sx=e.clientX; sl=r.scrollLeft; moved=0; };
+  r.onpointermove=e=>{ if(!down) return; const d=e.clientX-sx; if(Math.abs(d)>4){ moved=1; r.scrollLeft=sl-d; r.classList.add('dragging'); } };
+  const up=()=>{ down=false; setTimeout(()=>{ r.classList.remove('dragging'); moved=0; },0); };
+  r.onpointerup=up; r.onpointerleave=up; r.onpointercancel=up;
+  r.addEventListener('click',e=>{ if(r.classList.contains('dragging')){ e.preventDefault(); e.stopPropagation(); } },true);
+}
 function videosHTML(){
   const edit = editing && loggedIn;
   const V = DATA.videos || {}; const f = V.featured; const list = V.list || [];
@@ -863,9 +967,9 @@ ${f?`<section class="sect vfeat"><div class="wrap">
 </div></section>`:''}
 ${(list.length||edit)?`<section class="sect tint vmore"><div class="wrap">
   <div class="hdr vmore-hdr"><div><div class="tick"></div><h2>${T('video_more_h2','עוד מהמרכז')}</h2></div>
-    ${list.length>1?`<div class="vnav"><button class="varr" data-vscroll="-1" aria-label="${lang==='en'?'Previous':'הקודם'}">‹</button><button class="varr" data-vscroll="1" aria-label="${lang==='en'?'Next':'הבא'}">›</button></div>`:''}
+    ${list.length>1?`<div class="vnav"><button class="varr vprev" data-vscroll="-1" aria-label="${lang==='en'?'Previous':'הקודם'}"></button><button class="varr vnext" data-vscroll="1" aria-label="${lang==='en'?'Next':'הבא'}"></button></div>`:''}
   </div>
-  <div class="vrail" id="vrail">${list.map(card).join('')}${edit?`<div class="add-act vadd" id="addVid">${U('＋ הוספת סרטון')}</div>`:''}</div>
+  <div class="vrail-wrap"><div class="vrail" id="vrail">${list.map(card).join('')}${edit?`<div class="add-act vadd" id="addVid">${U('＋ הוספת סרטון')}</div>`:''}</div></div>
 </div></section>`:''}`;
 }
 function openVideo(i){
@@ -1187,6 +1291,15 @@ document.addEventListener('click', e=>{
   if(p && p.classList.contains('open') && !e.target.closest('#a11yPanel')) toggleA11yPanel(false);
 });
 document.addEventListener('keydown', e=>{
+  const vbx=document.getElementById('vbox');
+  if(vbx && !vbx.hidden){
+    if(e.key==='Escape'){ e.preventDefault(); vboxClose(); return; }
+    if(e.key==='ArrowRight'){ e.preventDefault(); vboxStep(document.documentElement.dir==='rtl'?-1:1); return; }
+    if(e.key==='ArrowLeft'){ e.preventDefault(); vboxStep(document.documentElement.dir==='rtl'?1:-1); return; }
+    if(e.key==='Tab'){ const f=[...vbx.querySelectorAll('button:not([hidden])')]; if(f.length){ const first=f[0],last=f[f.length-1];
+      if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey&&document.activeElement===last){ e.preventDefault(); first.focus(); } } return; }
+  }
   if(e.key==='Escape'){
     const p=document.getElementById('a11yPanel');
     if(p && p.classList.contains('open')){ toggleA11yPanel(false); document.getElementById('a11yBtn').focus(); return; }
@@ -1478,7 +1591,7 @@ function renderFooter(){
     <div class="fbottom">
       <span>${T('footer_copy','© אֹופֶק — האוניברסיטה העברית ומכון חרוב')}</span>
       <a href="#" data-page="accessibility">${T('footer_a11y','הצהרת נגישות')}</a>
-      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 46</span>
+      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 48</span>
     </div>
   </div>`;
 }
@@ -1489,6 +1602,7 @@ function render(){
   buildNav(); renderFooter();
   document.getElementById('main').innerHTML = PAGES[page]();
   initMotion();
+  railInit();
   const hm=document.querySelector('.hero .hero-media');
   if(hm){ const reveal=()=>hm.classList.add('ready');
     if(hm.tagName==='IMG'){ hm.complete ? reveal() : hm.addEventListener('load',reveal,{once:true}); }
@@ -1594,11 +1708,10 @@ document.addEventListener('click', e=>{
   if(e.target.id==='adminLink'){ e.preventDefault(); if(loggedIn){ editing=true; render(); } else { loginModal.classList.add('open'); } return; }
   const nav=e.target.closest('[data-page]'); if(nav){ e.preventDefault(); go(nav.dataset.page); return; }
   const yr=e.target.closest('[data-year]'); if(yr){ groupsYear=yr.dataset.year; render(); return; }
+  if(e.target.closest('#vboxX') || e.target.id==='vbox'){ e.preventDefault(); vboxClose(); return; }
+  const vn=e.target.closest('[data-vnav]'); if(vn){ e.preventDefault(); vboxStep(+vn.dataset.vnav); return; }
   const yt=e.target.closest('[data-yt]');
-  if(yt && !(editing&&loggedIn)){ e.preventDefault();
-    const box=yt.parentElement;
-    box.innerHTML=`<iframe src="${ytEmbed(yt.dataset.yt)}" title="YouTube" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
-    return; }
+  if(yt && !(editing&&loggedIn)){ e.preventDefault(); vboxOpen(yt.dataset.yt, yt); return; }
   const vs=e.target.closest('[data-vscroll]');
   if(vs){ const r=document.getElementById('vrail'); if(r){ const card=r.querySelector('.vcard'); const step=(card?card.offsetWidth:320)+22;
     r.scrollBy({left:(+vs.dataset.vscroll)*step*(document.documentElement.dir==='rtl'?-1:1),behavior:'smooth'}); } return; }
