@@ -740,15 +740,6 @@ let DATA = JSON.parse(JSON.stringify(DEFAULTS));
 applyContent(BASE_CONTENT);
 try { const s = localStorage.getItem(STORE_KEY); if (s) applyContent(JSON.parse(s)); } catch(e) {}
 /* לוגו מונפש: נדרס פעם אחת על לוגו ישן ששמור בענן, ולא נוגע בלוגו שיועלה מכאן והלאה */
-const HERO_V = 20, HERO_FILE = 'hero-sunrise.mp4';
-function applyHeroVersion(){
-  if (+(DATA.images.hero_v || 0) < HERO_V) {
-    DATA.images.hero = HERO_FILE;
-    DATA.images.hero_poster = '';
-    DATA.images.hero_v = HERO_V;
-  }
-}
-applyHeroVersion();
 const LOGO_V = 2;
 function applyLogoVersion(){
   if (+(DATA.images.logo_v || 0) < LOGO_V) {
@@ -831,12 +822,12 @@ function ytFallback(img){
   const id=img.dataset.ytid; let i=+(img.dataset.step||0);
   if(!id || i>=YT_FALLBACKS.length){ img.onerror=null; return; }
   img.dataset.step=i+1;
-  img.src=ytSrc('https://i.ytimg.com/vi/'+encodeURIComponent(id)+'/'+YT_FALLBACKS[i]+'.jpg');
+  img.src='https://i.ytimg.com/vi/'+encodeURIComponent(id)+'/'+YT_FALLBACKS[i]+'.jpg';
 }
-const YT_CB_FALLBACK = '41';
-const ytCb = () => String((DATA.videos && DATA.videos.cb) || YT_CB_FALLBACK);
-/* מוסיף חותם רענון רק לתמונות של יוטיוב, לא לתמונות שהועלו */
-const ytSrc = u => (/^https?:\/\/i\.ytimg\.com\//.test(u||'') ? u + (u.indexOf('?')<0?'?':'&') + 'v=' + encodeURIComponent(ytCb()) : u);
+/* יוטיוב מגיש לפעמים תמונת חלופה אפורה זעירה במקום שגיאה — נחשב כהחמצה */
+function ytCheck(img){ if(img.naturalWidth && img.naturalWidth<=120) ytFallback(img); }
+/* כתובות הממוזערות נשארות נקיות — פרמטרים מיותרים שברו את הטעינה */
+const ytSrc = u => u;
 const ytAuto = (id,which) => `https://i.ytimg.com/vi/${encodeURIComponent(id)}/${which}.jpg`;
 const ytThumb = (v,big) => v.thumb || ytAuto(v.id, big?'maxresdefault':'hqdefault');
 const ytEmbed  = id => `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0&modestbranding=1&hl=${lang==='en'?'en':'he'}`;
@@ -845,7 +836,7 @@ function ytFacade(v, i, big){
   const label = (lang==='en'?'Play video':'נגן את הסרטון') + (title?(': '+title):'');
   return `<button class="yt" data-yt="${esc(v.id)}" aria-label="${esc(label)}">
     <img src="${esc(ytSrc(ytThumb(v,big)))}" alt="" data-fb="1" loading="lazy"
-      ${v.thumb?'':`data-ytid="${esc(v.id)}" onerror="ytFallback(this)"`}>
+      ${v.thumb?'':`data-ytid="${esc(v.id)}" onerror="ytFallback(this)" onload="ytCheck(this)"`}>
     <span class="yt-play" aria-hidden="true"><svg viewBox="0 0 68 48" width="100%" height="100%"><path d="M66.5 7.7a8.6 8.6 0 0 0-6-6.1C55.2 0 34 0 34 0S12.8 0 7.5 1.6a8.6 8.6 0 0 0-6 6.1C0 13 0 24 0 24s0 11 1.5 16.3a8.6 8.6 0 0 0 6 6.1C12.8 48 34 48 34 48s21.2 0 26.5-1.6a8.6 8.6 0 0 0 6-6.1C68 35 68 24 68 24s0-11-1.5-16.3z" fill="#E0A33F"/><path d="M27 34V14l18 10z" fill="#12324B"/></svg></span>
   </button>`;
 }
@@ -934,8 +925,9 @@ function openVideo(i){
     closePanel(); render(); if(lang==='en'){ save(); } else afterHeSave('videos',item); };
   document.getElementById('vrf').onclick=()=>{
     DATA.videos=DATA.videos||{featured:null,list:[]};
-    DATA.videos.cb=String(Date.now());
-    save(); paintPicker(); render(); toast('התמונות רועננו ✓'); };
+    delete DATA.videos.cb;
+    document.querySelectorAll('.vthumb img,.vstage img').forEach(im=>{ const s=im.getAttribute('src'); im.removeAttribute('data-step'); im.src=''; im.src=s; });
+    paintPicker(); render(); toast('נטען מחדש. אם עדיין מוצגת תמונה ישנה — רעננו עם Ctrl+F5'); };
   document.getElementById('pc').onclick=closePanel;
 }
 
@@ -1486,7 +1478,7 @@ function renderFooter(){
     <div class="fbottom">
       <span>${T('footer_copy','© אֹופֶק — האוניברסיטה העברית ומכון חרוב')}</span>
       <a href="#" data-page="accessibility">${T('footer_a11y','הצהרת נגישות')}</a>
-      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 43</span>
+      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 45</span>
     </div>
   </div>`;
 }
@@ -1697,7 +1689,7 @@ document.addEventListener('keydown',e=>{ if(e.ctrlKey&&e.shiftKey&&(e.key==='E'|
 /* ===================== הפעלה ===================== */
 render();
 if (FB) {
-  CONTENT_REF().get().then(s=>{ if(s.exists){ applyContent(s.data()); } applyHeroVersion(); applyLogoVersion(); cloudReady=true; cacheHero(); render(); })
+  CONTENT_REF().get().then(s=>{ if(s.exists){ applyContent(s.data()); } applyLogoVersion(); cloudReady=true; cacheHero(); render(); })
     .catch(e=>{ console.warn('טעינה מהענן נכשלה',e); cloudReady=true; render(); });
   FB.auth.onAuthStateChanged(u=>{ const was=loggedIn; loggedIn=!!u; if(!u){ editing=false; try{sessionStorage.removeItem('ofek_admin')}catch(e){} } if(was!==loggedIn) render(); });
 }
