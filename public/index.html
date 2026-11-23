@@ -369,6 +369,18 @@ button.yt:hover .yt-play{transform:translate(-50%,-50%) scale(1.09)}
 .vrail.at-end{-webkit-mask-image:linear-gradient(to left,#000 0,#000 calc(100% - 48px),transparent 100%);mask-image:linear-gradient(to left,#000 0,#000 calc(100% - 48px),transparent 100%)}
 .vrail.at-start.at-end{-webkit-mask-image:none;mask-image:none}
 .vrail.dragging{cursor:grabbing;scroll-snap-type:none}
+.vrail .vcard{opacity:0}
+.vrail.in .vcard{animation:vcardIn .62s cubic-bezier(.2,.8,.3,1) both}
+.vrail.in .vcard:nth-child(1){animation-delay:.04s}
+.vrail.in .vcard:nth-child(2){animation-delay:.12s}
+.vrail.in .vcard:nth-child(3){animation-delay:.2s}
+.vrail.in .vcard:nth-child(4){animation-delay:.28s}
+.vrail.in .vcard:nth-child(5){animation-delay:.36s}
+.vrail.in .vcard:nth-child(n+6){animation-delay:.44s}
+@keyframes vcardIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.vrail .vcard,.vrail.in .vcard{opacity:1;animation:none}}
+html.a11y-nomotion .vrail .vcard{opacity:1!important;animation:none!important}
+.vrail{scroll-behavior:smooth}
 .vrail.dragging *{pointer-events:none}
 .vrail::-webkit-scrollbar{display:none}
 .varr[disabled]{opacity:.32;cursor:default;border-color:var(--rule);background:#fff;color:var(--muted)}
@@ -934,11 +946,45 @@ function railSync(){
   if(next) next.disabled=atEnd||max<=0;
   r.classList.toggle('at-start',atStart); r.classList.toggle('at-end',atEnd||max<=0);
 }
+let railTimer=null, railUserTook=false, railIO=null;
+function railStop(){ if(railTimer){ clearInterval(railTimer); railTimer=null; } }
+function motionOff(){
+  try{ if(document.documentElement.classList.contains('a11y-nomotion')) return true; }catch(e){}
+  return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+function railAuto(){
+  railStop();
+  const r=document.getElementById('vrail'); if(!r || railUserTook || motionOff()) return;
+  const cards=r.querySelectorAll('.vcard'); if(cards.length<2) return;
+  railTimer=setInterval(()=>{
+    if(motionOff()){ railStop(); return; }   /* אם הופעלה עצירת אנימציות תוך כדי */
+    if(document.hidden) return;
+    const vbx=document.getElementById('vbox'); if(vbx && !vbx.hidden) return;
+    if(editing && loggedIn) return;
+    if(r.matches(':hover') || r.contains(document.activeElement)) return;
+    const max=Math.max(0, r.scrollWidth-r.clientWidth);
+    if(max<=8) return;
+    const pos=Math.abs(r.scrollLeft);
+    const rtl=document.documentElement.dir==='rtl';
+    if(pos>=max-8) r.scrollTo({left:0,behavior:'smooth'});
+    else r.scrollBy({left:(cards[0].offsetWidth+22)*(rtl?-1:1),behavior:'smooth'});
+  }, 5200);
+}
+function railReveal(){
+  const wrap=document.querySelector('.vrail-wrap'); const r=document.getElementById('vrail');
+  if(!wrap || !r) return;
+  const show=()=>{ r.classList.add('in'); };
+  if(motionOff() || !('IntersectionObserver' in window)){ show(); return; }
+  if(railIO) railIO.disconnect();
+  railIO=new IntersectionObserver(es=>{ es.forEach(e=>{ if(e.isIntersecting){ show(); railIO.disconnect(); } }); },{threshold:.15});
+  railIO.observe(wrap);
+  setTimeout(show, 2500);          /* רשת ביטחון: הכרטיסים לעולם לא נשארים מוסתרים */
+}
 function railInit(){
-  const r=document.getElementById('vrail'); if(!r) return;
-  railSync(); r.onscroll=railSync;
+  const r=document.getElementById('vrail'); if(!r){ railStop(); return; }
+  railSync(); r.onscroll=railSync; railReveal(); railAuto();
   let down=false,sx=0,sl=0,moved=0;
-  r.onpointerdown=e=>{ if(e.target.closest('button')&&moved===0){} down=true; sx=e.clientX; sl=r.scrollLeft; moved=0; };
+  r.onpointerdown=e=>{ down=true; sx=e.clientX; sl=r.scrollLeft; moved=0; railUserTook=true; railStop(); };
   r.onpointermove=e=>{ if(!down) return; const d=e.clientX-sx; if(Math.abs(d)>4){ moved=1; r.scrollLeft=sl-d; r.classList.add('dragging'); } };
   const up=()=>{ down=false; setTimeout(()=>{ r.classList.remove('dragging'); moved=0; },0); };
   r.onpointerup=up; r.onpointerleave=up; r.onpointercancel=up;
@@ -1591,7 +1637,7 @@ function renderFooter(){
     <div class="fbottom">
       <span>${T('footer_copy','© אֹופֶק — האוניברסיטה העברית ומכון חרוב')}</span>
       <a href="#" data-page="accessibility">${T('footer_a11y','הצהרת נגישות')}</a>
-      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 48</span>
+      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 49</span>
     </div>
   </div>`;
 }
@@ -1713,7 +1759,7 @@ document.addEventListener('click', e=>{
   const yt=e.target.closest('[data-yt]');
   if(yt && !(editing&&loggedIn)){ e.preventDefault(); vboxOpen(yt.dataset.yt, yt); return; }
   const vs=e.target.closest('[data-vscroll]');
-  if(vs){ const r=document.getElementById('vrail'); if(r){ const card=r.querySelector('.vcard'); const step=(card?card.offsetWidth:320)+22;
+  if(vs){ railUserTook=true; railStop(); const r=document.getElementById('vrail'); if(r){ const card=r.querySelector('.vcard'); const step=(card?card.offsetWidth:320)+22;
     r.scrollBy({left:(+vs.dataset.vscroll)*step*(document.documentElement.dir==='rtl'?-1:1),behavior:'smooth'}); } return; }
   const mo=e.target.closest('[data-more]'); if(mo){ const c=mo.closest('.group'); c.classList.toggle('open'); const op=c.classList.contains('open'); mo.setAttribute('aria-expanded',op?'true':'false'); mo.textContent=op?U('הצג פחות'):U('קרא עוד'); return; }
   const iy=e.target.closest('[data-implyear]'); if(iy){ implYear=iy.dataset.implyear; render(); return; }
