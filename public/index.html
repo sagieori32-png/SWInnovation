@@ -830,7 +830,7 @@ function ytCheck(img){ if(img.naturalWidth && img.naturalWidth<=120) ytFallback(
 const ytSrc = u => u;
 const ytAuto = (id,which) => `https://i.ytimg.com/vi/${encodeURIComponent(id)}/${which}.jpg`;
 const ytThumb = (v,big) => v.thumb || ytAuto(v.id, big?'maxresdefault':'hqdefault');
-const ytEmbed  = id => `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0&modestbranding=1&hl=${lang==='en'?'en':'he'}`;
+const ytEmbed  = id => `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&color=white&hl=${lang==='en'?'en':'he'}`;
 function ytFacade(v, i, big){
   const title = L('videos',v,'title');
   const label = (lang==='en'?'Play video':'נגן את הסרטון') + (title?(': '+title):'');
@@ -1478,7 +1478,7 @@ function renderFooter(){
     <div class="fbottom">
       <span>${T('footer_copy','© אֹופֶק — האוניברסיטה העברית ומכון חרוב')}</span>
       <a href="#" data-page="accessibility">${T('footer_a11y','הצהרת נגישות')}</a>
-      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 45</span>
+      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 46</span>
     </div>
   </div>`;
 }
