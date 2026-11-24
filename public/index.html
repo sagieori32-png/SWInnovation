@@ -829,6 +829,16 @@ let heroCached = false;
 try { const hc=JSON.parse(localStorage.getItem(HERO_CACHE)||'null');
   if(hc && hc.hero){ DATA.images.hero=hc.hero; DATA.images.hero_poster=hc.hero_poster||''; heroCached=true; } } catch(e) {}
 function cacheHero(){ try{ localStorage.setItem(HERO_CACHE, JSON.stringify({hero:DATA.images.hero||'', hero_poster:DATA.images.hero_poster||''})); }catch(e){} }
+/* סרטון ההירו החדש — מוחלף פעם אחת בלבד; העלאה חדשה במערכת הניהול גוברת עליו */
+const HERO_V = 30;
+function applyHeroVersion(){
+  if (+(DATA.images.hero_v || 0) < HERO_V) {
+    DATA.images.hero = 'hero-dawn.mp4';
+    DATA.images.hero_poster = '';
+    DATA.images.hero_v = HERO_V;
+  }
+}
+applyHeroVersion();
 DATA.teamImg = DATA.teamImg || {};
 DATA.groupImg = DATA.groupImg || {};
 DATA.upcoming = DATA.upcoming || [];
@@ -1646,7 +1656,7 @@ function renderFooter(){
     <div class="fbottom">
       <span>${T('footer_copy','© אֹופֶק — האוניברסיטה העברית ומכון חרוב')}</span>
       <a href="#" data-page="accessibility">${T('footer_a11y','הצהרת נגישות')}</a>
-      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 51</span>
+      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 52</span>
     </div>
   </div>`;
 }
@@ -1857,7 +1867,7 @@ document.addEventListener('keydown',e=>{ if(e.ctrlKey&&e.shiftKey&&(e.key==='E'|
 /* ===================== הפעלה ===================== */
 render();
 if (FB) {
-  CONTENT_REF().get().then(s=>{ if(s.exists){ applyContent(s.data()); } applyVideoTitles(); applyLogoVersion(); cloudReady=true; cacheHero(); render(); })
+  CONTENT_REF().get().then(s=>{ if(s.exists){ applyContent(s.data()); } applyVideoTitles(); applyLogoVersion(); applyHeroVersion(); cloudReady=true; cacheHero(); render(); })
     .catch(e=>{ console.warn('טעינה מהענן נכשלה',e); cloudReady=true; render(); });
   FB.auth.onAuthStateChanged(u=>{ const was=loggedIn; loggedIn=!!u; if(!u){ editing=false; try{sessionStorage.removeItem('ofek_admin')}catch(e){} } if(was!==loggedIn) render(); });
 }
