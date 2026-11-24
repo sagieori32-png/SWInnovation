@@ -69,7 +69,7 @@ body.editing .editlink{background:var(--honey);border-color:var(--honey);color:#
 
 /* ===== הירו ===== */
 /* גובה ההירו עוקב אחרי הרוחב, כך שהסרטון נחתך כמה שפחות */
-.hero{position:relative;min-height:min(clamp(460px,48vw,820px),86vh);display:flex;align-items:flex-end;overflow:hidden;background:var(--deep)}
+.hero{position:relative;min-height:min(clamp(440px,42vw,760px),86vh);display:flex;align-items:flex-end;overflow:hidden;background:var(--deep)}
 .hero .bg{position:absolute;inset:0}
 .hero .bg img{width:100%;height:100%;object-fit:cover}
 .hero .scrim{position:absolute;inset:0;background:linear-gradient(to top,rgba(18,50,75,.94) 0%,rgba(18,50,75,.55) 45%,rgba(18,50,75,.15) 100%)}
@@ -830,11 +830,14 @@ let heroCached = false;
 try { const hc=JSON.parse(localStorage.getItem(HERO_CACHE)||'null');
   if(hc && hc.hero){ DATA.images.hero=hc.hero; DATA.images.hero_poster=hc.hero_poster||''; heroCached=true; } } catch(e) {}
 function cacheHero(){ try{ localStorage.setItem(HERO_CACHE, JSON.stringify({hero:DATA.images.hero||'', hero_poster:DATA.images.hero_poster||''})); }catch(e){} }
+/* שתי גרסאות לסרטון הבית: רחבה (2.7:1) למסך רחב, 16:9 לטלפון ולטאבלט.
+   כך הפס של ההירו כמעט אינו חותך את התמונה. סרטון שהמנהל מעלה מוצג כמו שהוא. */
+const HERO_WIDE='hero-wide.mp4', HERO_TALL='hero-dawn.mp4';
 /* סרטון ההירו החדש — מוחלף פעם אחת בלבד; העלאה חדשה במערכת הניהול גוברת עליו */
 const HERO_V = 30;
 function applyHeroVersion(){
   if (+(DATA.images.hero_v || 0) < HERO_V) {
-    DATA.images.hero = 'hero-dawn.mp4';
+    DATA.images.hero = HERO_TALL;
     DATA.images.hero_poster = '';
     DATA.images.hero_v = HERO_V;
   }
@@ -858,13 +861,21 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 const TV = (k,def) => { if(def!==undefined && !(k in DEFAULTS.text)) DEFAULTS.text[k]=def; if(lang==='en'){ if(DATA.text_en[k]!==undefined) return DATA.text_en[k]; if(EN.text[k]!==undefined) return EN.text[k]; } return DATA.text[k]!==undefined ? DATA.text[k] : (DEFAULTS.text[k]||''); };
 const T = (k,def) => `<span data-key="${k}">${esc(TV(k,def))}</span>`;
 const isVideo = s => typeof s==='string' && (/^data:video/.test(s) || /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(s));
-const heroMedia = () => { const s=DATA.images.hero||'';
+const wideScreen = () => { try{ return window.matchMedia('(min-width:900px)').matches; }catch(e){ return true; } };
+const heroPick = () => { const s=DATA.images.hero||'';
+  return (s===HERO_WIDE||s===HERO_TALL) ? (wideScreen()?HERO_WIDE:HERO_TALL) : s; };
+const heroMedia = () => { const s=heroPick();
   if(!cloudReady && !heroCached) return '';
   /* ללא poster: תמונת פתיחה שמורה עלולה להיות של סרטון קודם. הרקע הכחול מכסה עד הפריים הראשון */
   return isVideo(s)
   ? `<video class="hero-video hero-media" aria-hidden="true" tabindex="-1" autoplay muted loop playsinline preload="auto" data-img="hero" src="${esc(s)}"></video>`
   : `<img src="${esc(s)}" alt="" data-img="hero" class="kb hero-media">`; };
 /* החלפת מדיית ההירו — מנקה שאריות של הגרסה הקודמת */
+try{ window.matchMedia('(min-width:900px)').addEventListener('change',()=>{
+  const v=document.querySelector('video.hero-media'); if(!v) return;
+  const want=heroPick(); if(want!==HERO_WIDE && want!==HERO_TALL) return;
+  if(v.getAttribute('src')!==want){ v.setAttribute('src',want); v.load(); const pr=v.play(); if(pr&&pr.catch) pr.catch(()=>{}); }
+}); }catch(e){}
 const PENDING_DELETE=[];
 function queueDelete(u){ if(u && /firebasestorage\.googleapis\.com/.test(u) && PENDING_DELETE.indexOf(u)<0) PENDING_DELETE.push(u); }
 async function flushDeletes(){
@@ -1657,7 +1668,7 @@ function renderFooter(){
     <div class="fbottom">
       <span>${T('footer_copy','© אֹופֶק — האוניברסיטה העברית ומכון חרוב')}</span>
       <a href="#" data-page="accessibility">${T('footer_a11y','הצהרת נגישות')}</a>
-      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 53</span>
+      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 54</span>
     </div>
   </div>`;
 }
