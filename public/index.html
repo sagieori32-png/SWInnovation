@@ -832,9 +832,9 @@ try { const hc=JSON.parse(localStorage.getItem(HERO_CACHE)||'null');
 function cacheHero(){ try{ localStorage.setItem(HERO_CACHE, JSON.stringify({hero:DATA.images.hero||'', hero_poster:DATA.images.hero_poster||''})); }catch(e){} }
 /* שתי גרסאות לסרטון הבית: רחבה (2.7:1) למסך רחב, 16:9 לטלפון ולטאבלט.
    כך הפס של ההירו כמעט אינו חותך את התמונה. סרטון שהמנהל מעלה מוצג כמו שהוא. */
-const HERO_WIDE='hero-wide.mp4', HERO_TALL='hero-dawn.mp4';
+const HERO_WIDE='hero-wide-2.mp4', HERO_TALL='hero-dawn-2.mp4';
 /* סרטון ההירו החדש — מוחלף פעם אחת בלבד; העלאה חדשה במערכת הניהול גוברת עליו */
-const HERO_V = 30;
+const HERO_V = 31;
 function applyHeroVersion(){
   if (+(DATA.images.hero_v || 0) < HERO_V) {
     DATA.images.hero = HERO_TALL;
@@ -1668,7 +1668,7 @@ function renderFooter(){
     <div class="fbottom">
       <span>${T('footer_copy','© אֹופֶק — האוניברסיטה העברית ומכון חרוב')}</span>
       <a href="#" data-page="accessibility">${T('footer_a11y','הצהרת נגישות')}</a>
-      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 54</span>
+      <a href="#" id="adminLink">${U('כניסה לעריכה')}</a><span style="opacity:.55;font-size:.8rem;margin-inline-start:1rem">${U('גרסה')} 55</span>
     </div>
   </div>`;
 }
